@@ -36,11 +36,15 @@ function render(scene::Scene)
     return img
 end
 
-function commit_piece!(scene::Scene)
+function collide!(scene::Scene)
     #  Compute all positions of the current piece and add it to the canvas
     @info "Committing piece"
     for (x, y) in coordinates(scene)
         scene.static[x, y] = scene.piece.color
+    end
+    rows = rows_full(scene)
+    if length(rows) > 0
+        clear_rows!(scene, rows)
     end
     add_piece!(scene, rand(scene.pieces))
     scene.piece = rand(scene.pieces)
@@ -60,14 +64,27 @@ function iscollided(scene::Scene)
     return false
 end
 
-function istetris(scene::Scene)
+function rows_full(scene::Scene)
     rows = Int[]
     for i in axes(scene.static, 2)
-        if all(scene.static[i,:] .> 0)
+        if all(scene.static[:, i] .> 0)
             push!(rows, i)
         end
     end
     return rows
+end
+
+function clear_rows!(scene::Scene, rows::Vector{Int})
+    # Slice rows out of the picture somehow.
+    w, h = size(scene.static)
+    @debug "old size ($w, $h)"
+    n_remove = length(rows)
+    rows_keep = setdiff(axes(scene.static, 2), rows)
+    rows_append = zeros(UInt32, w, n_remove)
+    static = hcat(rows_append, scene.static[:, rows_keep])
+    w_new, h_new = size(static)
+    @debug "new size ($w_new, $h_new)"
+    scene.static = static
 end
 
 function left!(scene::Scene)
@@ -82,15 +99,10 @@ function right!(scene::Scene)
     end
 end
 
-function clear_rows!(scene::Scene, rows::Vector{Int})
-    # Slice rows out of the picture somehow.
-    scene[rows,:]
-end
-
 function next!(scene::Scene)
     # Check collisions and commit if they happened.
     if iscollided(scene)
-        commit_piece!(scene)
+        collide!(scene)
     else
         # Advance currently moving piece
         scene.position[2] += 1
