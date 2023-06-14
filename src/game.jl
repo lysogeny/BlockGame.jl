@@ -88,12 +88,14 @@ function clear_rows!(scene::Scene, rows::Vector{Int})
 end
 
 function left!(scene::Scene)
+    # TODO: don't move when there is a block next to us
     if scene.position[1] > 1
         scene.position[1] -= 1
     end
 end
 
 function right!(scene::Scene)
+    # TODO: don't move when there is a block next to us
     if scene.position[1] < size(scene.static, 1)
         scene.position[1] += 1
     end
