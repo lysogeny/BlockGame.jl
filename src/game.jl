@@ -96,7 +96,7 @@ end
 
 function right!(scene::Scene)
     # TODO: don't move when there is a block next to us
-    if scene.position[1] < size(scene.static, 1)
+    if scene.position[1] < size(scene.static, 1)-1
         scene.position[1] += 1
     end
 end
