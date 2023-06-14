@@ -3,7 +3,7 @@ BLOCK_SIZE = 32
 mutable struct Scene
     static::Matrix{UInt32}
     position::Vector{Int}
-    piece::Union{Tetronimo}
+    piece::Tetronimo
     pieces::Vector{Tetronimo}
 end
 
@@ -101,12 +101,19 @@ function right!(scene::Scene)
     end
 end
 
+function rotate!(scene::Scene)
+    scene.piece.shape = scene.piece.shape'[:, reverse(axes(scene.piece.shape, 1))]
+end
+
 function next!(scene::Scene)
     # Check collisions and commit if they happened.
+    @info "Updating scene"
     if iscollided(scene)
+        @debug "Detected collision"
         collide!(scene)
     else
         # Advance currently moving piece
+        @debug "Advancing position"
         scene.position[2] += 1
     end
 end
@@ -141,6 +148,8 @@ function keyboard_handler(game::Game)
                 right!(game.scene)
             elseif key == MiniFB.KB_KEY_LEFT
                 left!(game.scene)
+            elseif key == MiniFB.KB_KEY_UP
+                rotate!(game.scene)
             elseif key == MiniFB.KB_KEY_ESCAPE
                 MiniFB.mfb_close(game.canvas.window)
                 exit()

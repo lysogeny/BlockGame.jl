@@ -18,7 +18,7 @@ TEE_PIECE = Bool[1 1 1;
 MIRROR_SQUIGLE_PIECE = Bool[0 1 1;
                             1 1 0]
 
-struct Tetronimo 
+mutable struct Tetronimo 
     color::UInt32
     shape::Matrix{Bool}
 end
