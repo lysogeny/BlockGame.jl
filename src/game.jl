@@ -143,8 +143,10 @@ function keyboard_handler(game::Game)
             elseif key == MiniFB.KB_KEY_LEFT
                 @info "Move left"
                 left!(game.scene)
+            elseif key == MiniFB.KB_KEY_ESCAPE
+                MiniFB.mfb_close(game.canvas.window)
+                exit()
             end
-            @debug "Move completed"
         end
     end
     @cfunction $f Cvoid (Ptr{Cvoid}, MiniFB.mfb_key, MiniFB.mfb_key_mod, Bool)
