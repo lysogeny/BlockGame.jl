@@ -9,7 +9,7 @@ end
 
 function Scene(size::Vararg{Int, 2})
     static = zeros(UInt32, size...)
-    pieces = tetronimos_amazing()
+    pieces = tetronimos_standard()
     Scene(static, start_position(size...), rand(pieces), pieces)
 end
 
@@ -138,15 +138,15 @@ function keyboard_handler(game::Game)
     f = function(window::Ptr{Cvoid}, key::MiniFB.mfb_key, mod::MiniFB.mfb_key_mod, isPressed::Bool)
         if isPressed
             if key == MiniFB.KB_KEY_RIGHT
-                @info "Move right"
                 right!(game.scene)
             elseif key == MiniFB.KB_KEY_LEFT
-                @info "Move left"
                 left!(game.scene)
             elseif key == MiniFB.KB_KEY_ESCAPE
                 MiniFB.mfb_close(game.canvas.window)
                 exit()
             end
+            # TODO: Figure out why this @info is needed for proper functioning of arrow keys
+            @info "Key pressed"
         end
     end
     @cfunction $f Cvoid (Ptr{Cvoid}, MiniFB.mfb_key, MiniFB.mfb_key_mod, Bool)
