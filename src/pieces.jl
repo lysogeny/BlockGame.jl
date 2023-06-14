@@ -32,7 +32,7 @@ function coordinates(piece::Tetronimo)
 end
 
 function tetronimos_standard() 
-    [Tetronimo([0x00, 0x00, 0x00], LINE_PIECE), # Line, Cyan
+    [Tetronimo([0x00, 0xfb, 0xff], LINE_PIECE), # Line, Cyan
      Tetronimo([0x00, 0x00, 0xff], ELL_PIECE), # L, Blue
      Tetronimo([0xff, 0x9f, 0x00], MIRROR_ELL_PIECE), # mirror L, Orange
      Tetronimo([0xff, 0xff, 0x00], SQUARE_PIECE), # Square, Yellow
