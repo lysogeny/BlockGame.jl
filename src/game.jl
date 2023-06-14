@@ -70,6 +70,18 @@ function istetris(scene::Scene)
     return rows
 end
 
+function left!(scene::Scene)
+    if scene.position[1] > 1
+        scene.position[1] -= 1
+    end
+end
+
+function right!(scene::Scene)
+    if scene.position[1] < size(scene.static, 1)
+        scene.position[1] += 1
+    end
+end
+
 function clear_rows!(scene::Scene, rows::Vector{Int})
     # Slice rows out of the picture somehow.
     scene[rows,:]
@@ -102,23 +114,37 @@ end
 function render!(game::Game)
     img = render(game.scene)
     s = game.block_size
-    @debug "Painting"
     for x in axes(img, 1), y in axes(img, 2)
         # 1, 16; 17, 32; 33, 48; 49, 64
         game.canvas.buffer[((x-1)*s+1):(s * x), ((y-1)*s+1):(s * y)] .= img[x, y]
     end
 end
 
+function keyboard_handler(game::Game)
+    f = function(window::Ptr{Cvoid}, key::MiniFB.mfb_key, mod::MiniFB.mfb_key_mod, isPressed::Bool)
+        if isPressed
+            if key == MiniFB.KB_KEY_RIGHT
+                @info "Move right"
+                right!(game.scene)
+            elseif key == MiniFB.KB_KEY_LEFT
+                @info "Move left"
+                left!(game.scene)
+            end
+            @debug "Move completed"
+        end
+    end
+    @cfunction $f Cvoid (Ptr{Cvoid}, MiniFB.mfb_key, MiniFB.mfb_key_mod, Bool)
+end
+
 function run(game::Game)
     @info "Running Tetris"
     @async buffer_update_loop(game.canvas)
-    @async channel_update_loop(game.canvas)
+    key_func = keyboard_handler(game)
+    push!(game.callbacks, key_func)
+    MiniFB.mfb_set_keyboard_callback(game.canvas.window, key_func)
     while true
         next!(game.scene)
         render!(game)
         sleep(1/10)
     end
-end
-
-function initialise_canvas(game::Game)
 end
