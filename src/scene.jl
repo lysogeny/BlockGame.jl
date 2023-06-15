@@ -85,16 +85,35 @@ function clear_rows!(scene::Scene, rows::Vector{Int})
     scene.static = static
 end
 
+function isleftfree(scene::Scene)
+    for coordinate in coordinates(scene)
+        if coordinate[1] == 1 || scene.static[coordinate[1]-1,coordinate[2]] > 0
+            return false
+        end
+    end
+    return true
+end
+
+function isrightfree(scene::Scene)
+    for coordinate in coordinates(scene)
+        if coordinate[1] == size(scene.static, 1) || scene.static[coordinate[1]+1,coordinate[2]] > 0
+
+            return false
+        end
+    end
+    return true
+end
+
 function left!(scene::Scene)
     # TODO: don't move when there is a block next to us
-    if scene.position[1] > 1
+    if isleftfree(scene)
         scene.position[1] -= 1
     end
 end
 
 function right!(scene::Scene)
     # TODO: don't move when there is a block next to us
-    if scene.position[1] < size(scene.static, 1)-1
+    if isrightfree(scene)
         scene.position[1] += 1
     end
 end
