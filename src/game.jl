@@ -28,16 +28,22 @@ function keyboard_handler(game::Game)
         if isPressed
             if key == MiniFB.KB_KEY_RIGHT
                 right!(game.scene)
+                render!(game)
             elseif key == MiniFB.KB_KEY_LEFT
                 left!(game.scene)
+                render!(game)
             elseif key == MiniFB.KB_KEY_UP
                 rotate!(game.scene)
+                render!(game)
             elseif key == MiniFB.KB_KEY_ESCAPE
                 MiniFB.mfb_close(game.canvas.window)
                 exit()
             end
             # TODO: Figure out why this @info is needed for proper functioning of arrow keys
-            @info "Key pressed"
+        end
+        if key == MiniFB.KB_KEY_DOWN
+            next!(game.scene)
+            render!(game)
         end
     end
     @cfunction $f Cvoid (Ptr{Cvoid}, MiniFB.mfb_key, MiniFB.mfb_key_mod, Bool)
@@ -52,6 +58,6 @@ function run(game::Game)
     while true
         next!(game.scene)
         render!(game)
-        sleep(1/10)
+        sleep(1/5)
     end
 end
