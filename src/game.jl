@@ -51,7 +51,7 @@ end
 
 function run(game::Game)
     @info "Running Game"
-    @async buffer_update_loop(game.canvas)
+    errormonitor(@async buffer_update_loop(game.canvas))
     key_func = keyboard_handler(game)
     push!(game.callbacks, key_func)
     MiniFB.mfb_set_keyboard_callback(game.canvas.window, key_func)
