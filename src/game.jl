@@ -36,8 +36,10 @@ function keyboard_handler(game::Game)
                 rotate!(game.scene)
                 render!(game)
             elseif key == MiniFB.KB_KEY_ESCAPE
-                MiniFB.mfb_close(game.canvas.window)
-                exit()
+                stop!(game.scene)
+                render!(game)
+            elseif key == MiniFB.KB_KEY_R
+                reset!(game.scene)
             end
             # TODO: Figure out why this @info is needed for proper functioning of arrow keys
         end
@@ -55,9 +57,12 @@ function run(game::Game)
     key_func = keyboard_handler(game)
     push!(game.callbacks, key_func)
     MiniFB.mfb_set_keyboard_callback(game.canvas.window, key_func)
-    while true
-        next!(game.scene)
-        render!(game)
+    while game.scene.state != GameExit
+        if game.scene.state == GameRunning
+            next!(game.scene)
+            render!(game)
+        end
         sleep(1/5)
     end
+    MiniFB.mfb_close(game.canvas.window)
 end

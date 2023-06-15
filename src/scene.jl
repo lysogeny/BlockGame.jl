@@ -1,15 +1,22 @@
+@enum GameState begin
+    GameRunning
+    GameOver
+    GameExit
+end
+
 mutable struct Scene
     static::Matrix{UInt32}
     position::Vector{Int}
     piece::Piece
     pieces::Vector{Piece}
+    state::GameState
 end
 
 function Scene(size::Vararg{Int, 2})
     size = (size[1], size[2])
     static = zeros(UInt32, size...)
     pieces = pieces_standard()
-    Scene(static, start_position(size...), rand(pieces), pieces)
+    Scene(static, start_position(size...), rand(pieces), pieces, GameRunning)
 end
 
 start_position(w::Int, ::Int) = [Int(floor(w[1]/2)), -4]
@@ -49,6 +56,10 @@ function collide!(scene::Scene)
     #  Compute all positions of the current piece and add it to the canvas
     @info "Committing piece"
     for (x, y) in coordinates(scene)
+        if y < 1
+            scene.state = GameOver
+            return
+        end
         scene.static[x, y] = scene.piece.color
     end
     rows = rows_full(scene)
@@ -56,7 +67,6 @@ function collide!(scene::Scene)
         clear_rows!(scene, rows)
     end
     add_piece!(scene, rand(scene.pieces))
-    scene.piece = rand(scene.pieces)
 end
 
 function iscollided(scene::Scene)
@@ -124,20 +134,35 @@ end
 
 function left!(scene::Scene)
     # TODO: don't move when there is a block next to us
-    if isleftfree(scene)
+    if isleftfree(scene) && scene.state == GameRunning
         scene.position[1] -= 1
     end
 end
 
 function right!(scene::Scene)
     # TODO: don't move when there is a block next to us
-    if isrightfree(scene)
+    if isrightfree(scene) && scene.state == GameRunning
         scene.position[1] += 1
     end
 end
 
 function rotate!(scene::Scene)
-    scene.piece.shape = scene.piece.shape'[:, reverse(axes(scene.piece.shape, 1))]
+    if scene.state == GameRunning
+        scene.piece.shape = scene.piece.shape'[:, reverse(axes(scene.piece.shape, 1))]
+    end
+end
+
+function reset!(scene::Scene)
+    scene.state = GameRunning
+    for i in eachindex(scene.static)
+        scene.static[i] = UInt32(0x000000)
+    end
+    add_piece!(scene, rand(scene.pieces))
+end
+
+function stop!(scene::Scene)
+    @info "It's over"
+    scene.state = GameExit
 end
 
 function next!(scene::Scene)
@@ -146,7 +171,7 @@ function next!(scene::Scene)
     if iscollided(scene)
         @debug "Detected collision"
         collide!(scene)
-    else
+    elseif scene.state == GameRunning
         # Advance currently moving piece
         @debug "Advancing position to $(scene.position)"
         scene.position[2] += 1
