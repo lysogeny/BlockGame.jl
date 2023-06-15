@@ -64,5 +64,6 @@ function run(game::Game)
         end
         sleep(1/5)
     end
+    game.canvas.state = CanvasExit
     MiniFB.mfb_close(game.canvas.window)
 end
