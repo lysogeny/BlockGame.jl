@@ -1,4 +1,4 @@
-module Tetris
+module BlockGame
 
 import MiniFB
 
@@ -6,4 +6,4 @@ include("canvas.jl")
 include("pieces.jl")
 include("game.jl")
 
-end # module Tetris
+end # module BlockGame

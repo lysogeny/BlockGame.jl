@@ -14,7 +14,7 @@ function paint!(buffer::Matrix{UInt32}, pixel::Pixel)
 end
 
 function Canvas(size::Vararg{Int, 2}) 
-    window = MiniFB.mfb_open("Tetris.jl", size...)
+    window = MiniFB.mfb_open("BlockGame.jl", size...)
     buffer = zeros(UInt32, size...)
     Canvas(window, buffer)
 end

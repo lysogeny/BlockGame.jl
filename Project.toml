@@ -1,4 +1,4 @@
-name = "Tetris"
+name = "BlockGame"
 uuid = "2ce63019-2531-458e-b515-86f1d721d6de"
 authors = ["Jooa <git@jooa.xyz>"]
 version = "0.1.0"

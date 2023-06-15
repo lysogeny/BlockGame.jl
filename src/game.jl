@@ -3,13 +3,13 @@ BLOCK_SIZE = 32
 mutable struct Scene
     static::Matrix{UInt32}
     position::Vector{Int}
-    piece::Tetronimo
-    pieces::Vector{Tetronimo}
+    piece::Piece
+    pieces::Vector{Piece}
 end
 
 function Scene(size::Vararg{Int, 2})
     static = zeros(UInt32, size...)
-    pieces = tetronimos_standard()
+    pieces = pieces_standard()
     Scene(static, start_position(size...), rand(pieces), pieces)
 end
 
@@ -17,7 +17,7 @@ start_position(w::Int, ::Int) = [Int(floor(w[1]/2)), 1]
 
 start_position(scene::Scene) = start_position(size(scene.static)...)
 
-function add_piece!(scene::Scene, piece::Tetronimo)
+function add_piece!(scene::Scene, piece::Piece)
     scene.position = start_position(scene)
     scene.piece = piece
     @info "Added piece at ($(scene.position[1]),$(scene.position[2]))"
@@ -162,7 +162,7 @@ function keyboard_handler(game::Game)
 end
 
 function run(game::Game)
-    @info "Running Tetris"
+    @info "Running Game"
     @async buffer_update_loop(game.canvas)
     key_func = keyboard_handler(game)
     push!(game.callbacks, key_func)
