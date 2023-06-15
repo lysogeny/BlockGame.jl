@@ -1,6 +1,7 @@
 module BlockGame
 
 import MiniFB
+import Statistics
 
 include("canvas.jl")
 include("pieces.jl")

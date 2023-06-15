@@ -12,8 +12,8 @@ SQUARE_PIECE = Bool[1 1;
 SQUIGLE_PIECE = Bool[1 1 0;
                      0 1 1]
 
-TEE_PIECE = Bool[1 1 1;
-                 0 1 0]
+TEE_PIECE = Bool[0 1 0;
+                 1 1 1]
 
 MIRROR_SQUIGLE_PIECE = Bool[0 1 1;
                             1 1 0]
