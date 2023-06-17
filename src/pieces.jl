@@ -44,3 +44,23 @@ end
 function pieces_amazing()
     [Piece([0xc0, 0xff, 0xee], LINE_PIECE)]
 end
+
+function center_piece(coords::Vector{Tuple{Int, Int}})
+    maxs = [(maximum(c[1]), maximum(c[2])) for c in coords]
+    shift = maxs / 2
+    coords .-= shift
+end
+
+function generate_piece(n::Int)
+    # Start piece in middle
+    piece = [(0, 0)]
+    while n > 1
+        last = rand(piece)
+        new = last .+ rand([(1, 0), (-1, 0), (0, 1), (0, -1)])
+        if ~(new in piece)
+            push!(piece, new)
+            n -= 1
+        end
+    end
+    piece
+end

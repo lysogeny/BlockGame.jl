@@ -1,19 +1,28 @@
 mutable struct ScenePiece
-    coordinates::Matrix{Int}
+    coordinates::Matrix{Float64}
     offset::Vector{Int}
     color::UInt32
+    function ScenePiece(coordinates, offset, color)
+        @debug "New piece with" coordinates
+        new(coordinates, offset, color)
+    end
 end
 
 function ScenePiece(piece::Piece, offset::Vector{Int})
     coords = coordinates(piece)
-    coords = hcat([[x, y] for (x, y) in coordinates(piece)]...)
-    shift = Int.(ceil.(maximum(coords, dims=2)/2))
+    coords = Float64.(hcat([[x, y] for (x, y) in coordinates(piece)]...))
+    shift = maximum(coords, dims=2)/2
     coords .-= shift
     ScenePiece(coords, offset, piece.color)
 end
 
+function ScenePiece(coords::Vector{Tuple{Int, Int}}, offset::Vector{Int})
+    ScenePiece(hcat([[x,y] for (x, y) in coords]...), offset, rand(UInt32))
+end
+
 function coordinates(piece::ScenePiece)
-    [[x+piece.offset[1], y+piece.offset[2]] for (x, y) in eachcol(piece.coordinates)]
+    [Int[ceil(x+piece.offset[1]), ceil(y+piece.offset[2])] 
+     for (x, y) in eachcol(piece.coordinates)]
 end
 
 function visible_coordinates(piece::ScenePiece)
@@ -43,6 +52,7 @@ end
 
 @enum GameState begin
     GameRunning
+    GamePaused
     GameOver
     GameExit
 end
@@ -52,14 +62,15 @@ mutable struct Scene
     piece::ScenePiece
     pieces::Vector{Piece}
     state::GameState
+    difficulty::Int
 end
 
 function Scene(size::Vararg{Int, 2})
     size = (size[1], size[2])
     static = zeros(UInt32, size...)
     pieces = pieces_standard()
-    piece = ScenePiece(rand(pieces), start_position(size...))
-    Scene(static, piece, pieces, GameRunning)
+    piece = ScenePiece(generate_piece(4), start_position(size...))
+    Scene(static, piece, pieces, GamePaused, 4)
 end
 
 start_position(w::Int, ::Int) = [Int(floor(w[1]/2)), -4]
@@ -93,7 +104,7 @@ function collide!(scene::Scene)
     if length(rows) > 0
         clear_rows!(scene, rows)
     end
-    add_piece!(scene, rand(scene.pieces))
+    scene.piece = ScenePiece(generate_piece(rand(4:scene.difficulty)), start_position(scene))
 end
 
 function iscollided(scene::Scene)
@@ -137,6 +148,7 @@ function clear_rows!(scene::Scene, rows::Vector{Int})
     static = hcat(rows_append, scene.static[:, rows_keep])
     w_new, h_new = size(static)
     @debug "new size ($w_new, $h_new)"
+    scene.difficulty += 1
     scene.static = static
 end
 
@@ -184,7 +196,16 @@ function reset!(scene::Scene)
     for i in eachindex(scene.static)
         scene.static[i] = UInt32(0x000000)
     end
+    scene.difficulty = 4
     add_piece!(scene, rand(scene.pieces))
+end
+
+function pause!(scene::Scene)
+    if scene.state == GameRunning
+        scene.state = GamePaused
+    elseif scene.state == GamePaused
+        scene.state = GameRunning
+    end
 end
 
 function stop!(scene::Scene)

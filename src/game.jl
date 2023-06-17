@@ -38,6 +38,8 @@ function keyboard_handler(game::Game)
             elseif key == MiniFB.KB_KEY_ESCAPE
                 stop!(game.scene)
                 render!(game)
+            elseif key == MiniFB.KB_KEY_SPACE
+                pause!(game.scene)
             elseif key == MiniFB.KB_KEY_R
                 reset!(game.scene)
             end
